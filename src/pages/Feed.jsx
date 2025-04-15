@@ -131,6 +131,8 @@ const dummyVideos = [
   }
 ];
 
+
+
 export default function Feed() {
   const { isLoggedIn } = useAuth();
   const location = useLocation();
@@ -147,9 +149,8 @@ export default function Feed() {
       comments: savedComments[video.id] || video.comments
     }));
   });
-  
   const [activeTab, setActiveTab] = useState("forYou");
-  const [activeVideoIndex, setActiveVideoIndex] = useState(initialRandomIndex.current);
+  const [activeVideoIndex, setActiveVideoIndex] = useState(0);
   const [likedVideos, setLikedVideos] = useState(() => 
     JSON.parse(localStorage.getItem('likedVideos') || '{}')
   );
@@ -160,16 +161,19 @@ export default function Feed() {
   const [showShareModal, setShowShareModal] = useState({});
   const [newComment, setNewComment] = useState("");
   const [isMuted, setIsMuted] = useState(true);
-  const [isLikeAnimating, setIsLikeAnimating] = useState({});
-  const [isCommentAnimating, setIsCommentAnimating] = useState({});
-  const [isShareAnimating, setIsShareAnimating] = useState({});
-  const [copiedLink, setCopiedLink] = useState(null);
   const videoRefs = useRef([]);
   const iframeRefs = useRef([]);
   const commentInputRef = useRef(null);
   const feedRef = useRef(null);
   const commentsContainerRefs = useRef({});
   const [isLoading, setIsLoading] = useState(false);
+
+  // Set random video index on mount
+  useEffect(() => {
+    if (location.state?.initialVideoIndex === undefined) {
+      setActiveVideoIndex(Math.floor(Math.random() * dummyVideos.length));
+    }
+  }, []);
 
   // Save comments to localStorage
   const saveComments = (videoId, comments) => {
@@ -193,17 +197,6 @@ export default function Feed() {
     videoRefs.current = videoRefs.current.slice(0, videos.length);
     iframeRefs.current = iframeRefs.current.slice(0, videos.length);
   }, [videos]);
-
-  // Scroll to initial random video
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (videoRefs.current[initialRandomIndex.current]) {
-        videoRefs.current[initialRandomIndex.current].scrollIntoView({ behavior: 'auto' });
-      }
-    }, 100);
-    
-    return () => clearTimeout(timeout);
-  }, []);
 
   // Handle intersection observer to manage which video is visible
   useEffect(() => {
@@ -317,12 +310,6 @@ export default function Feed() {
   };
 
   const toggleLike = (videoId) => {
-    // Set animation state
-    setIsLikeAnimating(prev => ({ ...prev, [videoId]: true }));
-    setTimeout(() => {
-      setIsLikeAnimating(prev => ({ ...prev, [videoId]: false }));
-    }, 800);
-    
     setLikedVideos(prev => {
       const newLikedVideos = {
         ...prev,
@@ -334,12 +321,6 @@ export default function Feed() {
   };
 
   const toggleComments = (videoId) => {
-    // Set animation state
-    setIsCommentAnimating(prev => ({ ...prev, [videoId]: true }));
-    setTimeout(() => {
-      setIsCommentAnimating(prev => ({ ...prev, [videoId]: false }));
-    }, 300);
-    
     setShowComments(prev => ({
       ...prev,
       [videoId]: !prev[videoId]
@@ -358,28 +339,10 @@ export default function Feed() {
   };
 
   const toggleShareModal = (videoId) => {
-    // Set animation state
-    setIsShareAnimating(prev => ({ ...prev, [videoId]: true }));
-    setTimeout(() => {
-      setIsShareAnimating(prev => ({ ...prev, [videoId]: false }));
-    }, 300);
-    
     setShowShareModal(prev => ({
       ...prev,
       [videoId]: !prev[videoId]
     }));
-  };
-
-  const copyShareLink = (videoId, youtubeId) => {
-    const link = `https://www.youtube.com/shorts/${youtubeId}`;
-    navigator.clipboard.writeText(link)
-      .then(() => {
-        setCopiedLink(videoId);
-        setTimeout(() => setCopiedLink(null), 2000);
-      })
-      .catch(err => {
-        console.error('Failed to copy: ', err);
-      });
   };
 
   return (
