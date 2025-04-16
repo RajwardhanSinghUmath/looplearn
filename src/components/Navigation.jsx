@@ -46,34 +46,28 @@ function Navigation() {
                   Feed
                 </Link>
                 
-                {isLoggedIn ? (
-                  <>
+               
+                  
                     <Link 
-                      to="/profile" 
-                      className={`px-3 py-2 text-sm font-medium transition-colors ${
-                        location.pathname === '/profile' 
-                          ? 'text-purple-400' 
-                          : 'text-gray-300 hover:text-white'
-                      }`}
-                    >
-                      Profile
-                    </Link>
-                    
-                    <button 
-                      onClick={logout}
-                      className="ml-4 px-4 py-1.5 bg-gray-800 text-white text-sm font-medium rounded-full hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    >
-                      Logout
-                    </button>
-                  </>
-                ) : (
-                  <Link 
-                    to="/login" 
-                    className="ml-4 px-4 py-1.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-medium rounded-full hover:from-purple-700 hover:to-pink-700 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  >
-                    Login
-                  </Link>
-                )}
+  to={isLoggedIn ? "/profile" : "/login"}
+  className={`px-3 py-2 text-sm font-medium transition-colors ${
+    location.pathname === '/profile' 
+      ? 'text-purple-400' 
+      : 'text-gray-300 hover:text-white'
+  }`}
+>
+  Profile
+</Link>
+
+{isLoggedIn && (
+  <button 
+    onClick={logout}
+    className="ml-4 px-4 py-1.5 bg-gray-800 text-white text-sm font-medium rounded-full hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500"
+  >
+    Logout
+  </button>
+)}
+
               </div>
             </div>
           </div>
